@@ -1,0 +1,60 @@
+<script type="module">
+import WorkSpace from './vendor/workspace/src/WorkSpace.js';
+
+const ws = new WorkSpace();
+
+// --- 1. Basic set + get ---
+ws.set("foo.bar.baz", 123);
+console.log("foo.bar.baz =", ws.get("foo.bar.baz")); 
+// → 123
+
+// --- 2. Numeric as object vs array ---
+ws.set("list.1", "alpha"); 
+console.log("list (object default) =", ws.get("list")); 
+// → { "1": "alpha" }
+
+ws.set("alist.1", "beta", { numeric: true });
+console.log("alist (numeric array) =", ws.get("alist")); 
+// → [ , "beta" ]
+
+// --- 3. Overwrite behavior ---
+ws.set("foo.bar.baz", 999, { overwrite: false });
+console.log("overwrite disabled =", ws.get("foo.bar.baz")); 
+// → 123 (unchanged)
+
+ws.set("foo.bar.baz", 999, { overwrite: true });
+console.log("overwrite enabled =", ws.get("foo.bar.baz")); 
+// → 999
+
+// --- 4. Exists checks ---
+console.log("exists foo.bar =", ws.exists("foo.bar")); 
+// → true
+console.log("exists foo.missing =", ws.exists("foo.missing")); 
+// → false
+
+ws.set("truthy.test.0", null, { numeric: true });
+console.log("exists truthy.test.0 =", ws.exists("truthy.test.0")); 
+// → true
+console.log("exists truthy.test.0 truthy=true =", ws.exists("truthy.test.0", { truthy: true })); 
+// → false
+
+// --- 5. Delete with rv boolean vs object ---
+ws.set("delete.me", 42);
+console.log("delete rv=boolean =", ws.delete("delete.me")); 
+// → true
+ws.set("delete.me", 99);
+console.log("delete rv=object =", ws.delete("delete.me", { rv: "object" })); 
+// → 99
+console.log("delete missing rv=object =", ws.delete("delete.missing", { rv: "object" })); 
+// → undefined
+
+// --- 6. Global opts as defaults ---
+ws.setOpts({ "set.numeric": true, "set.overwrite": false });
+ws.set("global.test.1", "gamma"); 
+console.log("global opts numeric overwrite test =", ws.get("global.test")); 
+// → [ , "gamma" ]
+ws.set("global.test.1", "delta"); 
+console.log("global opts prevented overwrite =", ws.get("global.test.1")); 
+ // → "gamma" (unchanged)
+ console.log('final ws',ws);
+</script>
