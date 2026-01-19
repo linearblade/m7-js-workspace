@@ -28,7 +28,7 @@ const pkg = {
 };
 
 // Register into lib hierarchy (idempotent / merge-safe)
-const dst = 'data.ws';
+const dst = 'primitive.workspace';
 const existing = lib.hash.get(lib, dst);
 
 if (existing && typeof existing === 'object' && typeof lib?.hash?.merge === 'function') {
