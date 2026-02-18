@@ -1,9 +1,14 @@
-import WorkSpace from './WorkSpace.js';
-import ResolverWorkSpace from './ResolverWorkSpace.js';
-import ManifestResolver from './ManifestResolver.js';
-import Opts from './Opts.js';
+import install, {
+  WorkSpace,
+  ResolverWorkSpace,
+  ManifestResolver,
+  Opts,
+  SERVICE_ID
+} from './install.js';
 
 export {
+  install,
+  SERVICE_ID,
   WorkSpace,
   ResolverWorkSpace,
   ManifestResolver,
@@ -11,6 +16,8 @@ export {
 };
 
 export default {
+  install,
+  SERVICE_ID,
   WorkSpace,
   ResolverWorkSpace,
   ManifestResolver,

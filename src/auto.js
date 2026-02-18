@@ -1,44 +1,46 @@
-// auto.js (m7-js-workspace)
-// Registers WorkSpace + related utilities into window.lib under: lib.data.ws
+/*
+ * Copyright (c) 2025 m7.org
+ * License: MTL-10 (see LICENSE.md)
+ */
+// auto.js
+//
+// Backward-compatible shim for legacy m7 usage.
+// - v098 style: if global lib exists, auto-install into it.
+// - v1 style: no global lib required; this file safely no-ops.
+//
+// For explicit/module installs, prefer importing install() directly.
 
-import WorkSpace from './WorkSpace.js';
-import Opts from './Opts.js';
-import ResolverWorkSpace from './ResolverWorkSpace.js';
-import ManifestResolver from './ManifestResolver.js';
+import install, {
+    WorkSpace,
+    Opts,
+    ResolverWorkSpace,
+    ManifestResolver,
+} from "./install.js";
 
-const MOD = '[workspace]';
+const MOD = "[primitive.workspace]";
 
-// Browser + lib guard
-const lib = (typeof window !== 'undefined' && window.lib) ? window.lib : null;
+const host = resolveHost();
+const lib = host && host.lib ? host.lib : null;
 
-if (!lib) {
-  throw new Error(`${MOD} requires window.lib (browser environment).`);
+let installResult = null;
+
+if (lib) {
+    installResult = install(lib, { host });
+} else if (host && host.console && typeof host.console.warn === "function") {
+    host.console.warn(`${MOD} auto.js: global lib not found; skipping auto-install.`);
 }
 
-if (typeof lib?.hash?.set !== 'function' || typeof lib?.hash?.get !== 'function') {
-  throw new Error(`${MOD} requires lib.hash.get + lib.hash.set (m7-lib not installed or incomplete).`);
+const workspace =
+    installResult && installResult.namespace
+        ? installResult.namespace
+        : { WorkSpace, Opts, ResolverWorkSpace, ManifestResolver };
+
+export { workspace, WorkSpace, Opts, ResolverWorkSpace, ManifestResolver, install };
+export default workspace;
+
+function resolveHost() {
+    if (typeof globalThis !== "undefined") return globalThis;
+    if (typeof window !== "undefined") return window;
+    if (typeof global !== "undefined") return global;
+    return undefined;
 }
-
-// Package export surface
-const pkg = {
-  WorkSpace,
-  Opts,
-  ResolverWorkSpace,
-  ManifestResolver,
-};
-
-// Register into lib hierarchy (idempotent / merge-safe)
-const dst = 'primitive.workspace';
-const existing = lib.hash.get(lib, dst);
-
-if (existing && typeof existing === 'object' && typeof lib?.hash?.merge === 'function') {
-  lib.hash.set(lib, dst, lib.hash.merge(existing, pkg));
-} else {
-  lib.hash.set(lib, dst, pkg);
-}
-
-// Optional convenience aliases (comment out if you dislike these)
-// lib.hash.set(lib, 'data.WorkSpace', WorkSpace);
-
-export { WorkSpace, Opts, ResolverWorkSpace, ManifestResolver };
-export default WorkSpace;
