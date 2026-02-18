@@ -19,7 +19,9 @@ At its core, WorkSpace is a “better hash” for nested objects, with optional 
 ├── LICENSE.md
 ├── README.md
 ├── src
+│   ├── auto.js
 │   ├── index.js
+│   ├── install.js
 │   ├── ManifestResolver.js
 │   ├── Opts.js
 │   ├── ResolverWorkSpace.js
@@ -35,16 +37,20 @@ At its core, WorkSpace is a “better hash” for nested objects, with optional 
 ## ✨ Components
 
 * **WorkSpace** → Core utility for nested object access, modification, and existence checks.
-
-  * Methods: `get`, `getList`, `set`, `delete`, `exists`.
+  Methods: `get`, `getList`, `set`, `delete`, `exists`.
 * **ResolverWorkSpace** → Extends WorkSpace with symbolic reference resolution (`resolve`, `resolveList`).
 * **ManifestResolver** → High-level workflows for manifests, adds search/filter utilities (`searchList`, `searchOne`).
 * **Opts** → Lightweight option manager that unifies runtime options, global defaults, and fallbacks.
-  *For a full breakdown of available options, see [`docs/OPTIONS.md`](./docs/OPTIONS.md).*
+* **install(lib, opts?)** → Explicit m7-lib installer that registers `lib.primitive.workspace`.
+* **auto.js** → Backward-compatible global shim: installs only if global `lib` exists, otherwise warns and no-ops.
+
+For a full breakdown of available options, see [`docs/OPTIONS.md`](./docs/OPTIONS.md).
 
 ---
 
 ## 🔧 Usage
+
+### 1) Standalone class usage
 
 ```js
 import { WorkSpace, ResolverWorkSpace, ManifestResolver } from './src/index.js';
@@ -69,6 +75,33 @@ console.log(mr.searchOne('scenes', { id: 'scene:chess' }));
 // → { id: 'scene:chess', title: 'Chess' }
 ```
 
+### 2) Explicit m7-lib install (recommended for integration)
+
+```js
+import installWorkspace from './src/install.js';
+
+const result = installWorkspace(lib);
+console.log(result.installedService); // false
+console.log(result.namespace.WorkSpace); // class WorkSpace
+```
+
+This package is a straightforward library module. `install()` only registers namespace helpers at `lib.primitive.workspace`; it does not register `lib.service` entries.
+
+### 3) Legacy/global convenience shim (`auto.js`)
+
+```html
+<script type="module" src="/vendor/m7-js-workspace/src/auto.js"></script>
+```
+
+If global `lib` is present, `auto.js` installs `lib.primitive.workspace`.
+If global `lib` is missing, it logs a warning and safely no-ops.
+
+### Entry points at a glance
+
+* `src/index.js` -> class exports plus `install`.
+* `src/install.js` -> explicit `install(lib, opts?)` for m7-lib registration.
+* `src/auto.js` -> legacy global auto-install shim.
+
 ---
 
 ## 📌 Notes
@@ -76,6 +109,7 @@ console.log(mr.searchOne('scenes', { id: 'scene:chess' }));
 * All options use a flat, namespaced key format (e.g., `set.numeric`, `resolver.maxDepth`).
 * Runtime options always override global defaults.
 * Defaults are merged automatically when constructing each class.
+* The installer returns `{ namespace, instance: null, installedService: false }`.
 
 ---
 
