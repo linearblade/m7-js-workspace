@@ -1,25 +1,28 @@
-import install, {
+import WorkSpace from "./WorkSpace.js";
+import ResolverWorkSpace from "./ResolverWorkSpace.js";
+import ManifestResolver from "./ManifestResolver.js";
+import Opts from "./Opts.js";
+import install, { installNamespace, NAMESPACE_ID } from "./install.js";
+import VERSION from "./version.js";
+
+export {
   WorkSpace,
   ResolverWorkSpace,
   ManifestResolver,
   Opts,
-  SERVICE_ID
-} from './install.js';
-
-export {
+  installNamespace,
   install,
-  SERVICE_ID,
-  WorkSpace,
-  ResolverWorkSpace,
-  ManifestResolver,
-  Opts
+  NAMESPACE_ID,
+  VERSION
 };
 
 export default {
-  install,
-  SERVICE_ID,
   WorkSpace,
   ResolverWorkSpace,
   ManifestResolver,
-  Opts
+  Opts,
+  installNamespace,
+  install,
+  NAMESPACE_ID,
+  VERSION
 };
